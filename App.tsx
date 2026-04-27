@@ -1,20 +1,39 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { useEffect } from 'react';
+import { StatusBar } from 'expo-status-bar';
+import { ActivityIndicator, View } from 'react-native';
+import AppProviders from './src/providers/AppProviders';
+import MainAppNavigator from './src/core/navigation/MainAppNavigator';
+import { useAuthStore } from './src/store/authStore';
+import { Colors } from './src/constants/theme';
 
-export default function App() {
+function AppContent() {
+  const isLoading = useAuthStore((s) => s.isLoading);
+  const restoreSession = useAuthStore((s) => s.restoreSession);
+
+  useEffect(() => {
+    restoreSession();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.cream.DEFAULT }}>
+        <ActivityIndicator size="large" color={Colors.primary.ink} />
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Welcome MindTalk!!!!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <>
+      <StatusBar style="dark" />
+      <MainAppNavigator />
+    </>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
+export default function App() {
+  return (
+    <AppProviders>
+      <AppContent />
+    </AppProviders>
+  );
+}

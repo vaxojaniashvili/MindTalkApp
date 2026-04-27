@@ -1,4 +1,2 @@
-export type RootStackParamList = {
-  Home: undefined;
-  Details: { id: string };
-};
+// Types are centralized in src/types/index.ts
+export type { RootStackParamList, MainTabParamList } from '../../types';
