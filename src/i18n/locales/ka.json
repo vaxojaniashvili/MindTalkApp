@@ -24,7 +24,11 @@
     "noAccount": "არ გაქვთ ანგარიში?",
     "hasAccount": "უკვე გაქვთ ანგარიში?",
     "loginError": "ელ. ფოსტა ან პაროლი არასწორია",
-    "logout": "გასვლა"
+    "logout": "გასვლა",
+    "firstName": "სახელი",
+    "lastName": "გვარი",
+    "registerAsClient": "რეგისტრაცია კლიენტად",
+    "registerAsPsychologist": "რეგისტრაცია ფსიქოლოგად"
   },
   "tabs": {
     "home": "მთავარი",
@@ -136,7 +140,10 @@
     "expired": "ვადაგასული",
     "live30": "30 წთ ლაივ ჩატი",
     "live60": "60 წთ ლაივ ჩატი",
-    "async7d": "7-დღიანი ჩატი"
+    "async7d": "7-დღიანი ჩატი",
+    "typeMessage": "დაწერეთ შეტყობინება...",
+    "attachment": "ფაილი",
+    "startLive": "ლაივ სესიის დაწყება"
   },
   "consultation": {
     "pending": "მოლოდინში",

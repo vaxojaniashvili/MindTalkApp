@@ -17,6 +17,10 @@ interface AuthState {
     email: string;
     password: string;
     password_confirmation: string;
+    first_name: string;
+    last_name: string;
+    role: 'client' | 'psychologist';
+    locale?: string;
   }) => Promise<void>;
   logout: () => Promise<void>;
   restoreSession: () => Promise<void>;
@@ -57,7 +61,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       if (token) {
         setAuthToken(token);
         const { data } = await fetchMe();
-        set({ user: data.data, token, isAuthenticated: true, isLoading: false });
+        set({ user: data.user, token, isAuthenticated: true, isLoading: false });
       } else {
         set({ isLoading: false });
       }
@@ -71,7 +75,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   refreshUser: async () => {
     try {
       const { data } = await fetchMe();
-      set({ user: data.data });
+      set({ user: data.user });
     } catch {}
   },
 }));

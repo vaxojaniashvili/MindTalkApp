@@ -9,15 +9,18 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import Avatar from '../components/_atoms/Avatar';
 import Badge from '../components/_atoms/Badge';
+import BackButton from '../components/_atoms/BackButton';
 import { Colors, Spacing, FontSize, FontWeight, BorderRadius, Shadow } from '../constants/theme';
 import { useAuthStore } from '../store/authStore';
 import { useQuery } from '@tanstack/react-query';
 import { fetchChatSessions } from '../api/endpoints';
 import { getDisplayName } from '../utils/helpers';
-import type { ChatSessionData } from '../types';
+import type { ChatSessionData, RootStackParamList } from '../types';
 
 const statusVariant: Record<string, 'primary' | 'success' | 'warning' | 'danger'> = {
   pending: 'warning',
@@ -34,6 +37,7 @@ const typeLabels: Record<string, string> = {
 
 export default function ChatSessionsScreen() {
   const { t } = useTranslation();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const isAuth = useAuthStore((s) => s.isAuthenticated);
 
   const { data, isLoading } = useQuery({
@@ -41,10 +45,14 @@ export default function ChatSessionsScreen() {
     queryFn: fetchChatSessions,
     enabled: isAuth,
   });
-  const sessions = data?.data?.data ?? [];
+  const sessions = data?.data?.sessions ?? [];
 
   const renderItem = ({ item }: { item: ChatSessionData }) => (
-    <TouchableOpacity style={styles.card} activeOpacity={0.7}>
+    <TouchableOpacity
+      style={styles.card}
+      activeOpacity={0.7}
+      onPress={() => navigation.navigate('ChatRoom', { id: item.id })}
+    >
       <View style={styles.cardTop}>
         <Avatar
           uri={item.counterpart.avatar_url}
@@ -71,6 +79,7 @@ export default function ChatSessionsScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
+      <BackButton />
       <Text style={styles.title}>{t('chat.title')}</Text>
 
       <FlatList

@@ -5,10 +5,10 @@ import { useTranslation } from "react-i18next";
 import HomeScreen from "../../screens/HomeScreen";
 import PsychologistsScreen from "../../screens/PsychologistsScreen";
 import CoursesScreen from "../../screens/CoursesScreen";
-import DashboardScreen from "../../screens/DashboardScreen";
 import ProfileScreen from "../../screens/ProfileScreen";
 import { Colors, FontWeight } from "../../constants/theme";
 import type { MainTabParamList } from "../../types";
+import { Platform } from "react-native";
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -22,7 +22,6 @@ const tabIcons: Record<
   Home: { focused: "home", default: "home-outline" },
   Psychologists: { focused: "people", default: "people-outline" },
   Courses: { focused: "book", default: "book-outline" },
-  Dashboard: { focused: "grid", default: "grid-outline" },
   Profile: { focused: "person", default: "person-outline" },
 };
 
@@ -44,7 +43,7 @@ export default function TabNavigation() {
           backgroundColor: Colors.cream[50],
           borderTopColor: Colors.border,
           paddingBottom: 4,
-          height: 63,
+          height: Platform.OS === "ios" ? 68 : 110,
         },
         tabBarLabelStyle: {
           fontSize: 11,
@@ -66,11 +65,6 @@ export default function TabNavigation() {
         name="Courses"
         component={CoursesScreen}
         options={{ tabBarLabel: t("tabs.courses") }}
-      />
-      <Tab.Screen
-        name="Dashboard"
-        component={DashboardScreen}
-        options={{ tabBarLabel: t("tabs.dashboard") }}
       />
       <Tab.Screen
         name="Profile"

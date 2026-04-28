@@ -8,6 +8,7 @@ export type RootStackParamList = {
   ChatRoom: { id: string };
   ConsultationDetail: { id: string };
   EditProfile: undefined;
+  ChatSessions: undefined;
   Settings: undefined;
 };
 
@@ -15,7 +16,6 @@ export type MainTabParamList = {
   Home: undefined;
   Psychologists: undefined;
   Courses: undefined;
-  Dashboard: undefined;
   Profile: undefined;
 };
 
@@ -224,6 +224,20 @@ export interface ChatSessionData {
     avatar_url: string | null;
     role: 'client' | 'psychologist';
   };
+}
+
+export interface ChatMessageData {
+  id: number;
+  session_id: string;
+  sender_id: string;
+  sender_name: string;
+  body: string | null;
+  attachment_url: string | null;
+  attachment_mime: string | null;
+  attachment_size: number | null;
+  flags: { crisis_keywords?: string[] } | null;
+  read_at: string | null;
+  created_at: string;
 }
 
 export interface SubscriptionPlan {

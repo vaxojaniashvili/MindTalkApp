@@ -46,9 +46,9 @@ export default function PsychologistDetailScreen({ route }: Props) {
     queryKey: ['psychologist-plans', slug],
     queryFn: () => fetchSubscriptionPlans(slug),
   });
-  const psych = detailData?.data?.data;
+  const psych = detailData?.data?.psychologist;
   const reviews = reviewsData?.data?.data ?? [];
-  const plans = plansData?.data?.data ?? [];
+  const plans = plansData?.data?.plans ?? [];
 
   if (isLoading || !psych) {
     return (

@@ -10,6 +10,7 @@ import PsychologistDetailScreen from '../../screens/PsychologistDetailScreen';
 import CourseDetailScreen from '../../screens/CourseDetailScreen';
 import EditProfileScreen from '../../screens/EditProfileScreen';
 import ChatSessionsScreen from '../../screens/ChatSessionsScreen';
+import ChatRoomScreen from '../../screens/ChatRoomScreen';
 import { Colors } from '../../constants/theme';
 import type { RootStackParamList } from '../../types';
 
@@ -39,6 +40,8 @@ export default function MainAppNavigator() {
       <Stack.Screen name="PsychologistDetail" component={PsychologistDetailScreen} />
       <Stack.Screen name="CourseDetail" component={CourseDetailScreen} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+      <Stack.Screen name="ChatSessions" component={ChatSessionsScreen} />
+      <Stack.Screen name="ChatRoom" component={ChatRoomScreen} />
     </Stack.Navigator>
   );
 }

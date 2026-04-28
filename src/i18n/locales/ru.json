@@ -24,7 +24,11 @@
     "noAccount": "Нет аккаунта?",
     "hasAccount": "Уже есть аккаунт?",
     "loginError": "Неверный email или пароль",
-    "logout": "Выйти"
+    "logout": "Выйти",
+    "firstName": "Имя",
+    "lastName": "Фамилия",
+    "registerAsClient": "Регистрация как клиент",
+    "registerAsPsychologist": "Регистрация как психолог"
   },
   "tabs": {
     "home": "Главная",
@@ -136,7 +140,10 @@
     "expired": "Истёк",
     "live30": "30 мин живой чат",
     "live60": "60 мин живой чат",
-    "async7d": "7-дневный чат"
+    "async7d": "7-дневный чат",
+    "typeMessage": "Напишите сообщение...",
+    "attachment": "Вложение",
+    "startLive": "Начать живую сессию"
   },
   "consultation": {
     "pending": "Ожидание",

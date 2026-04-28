@@ -53,8 +53,8 @@ export default function DashboardScreen() {
     queryFn: fetchMyEnrollments,
     enabled: isAuth,
   });
-  const consultations = consultData?.data?.data ?? [];
-  const enrollments = enrollData?.data?.data ?? [];
+  const consultations = consultData?.data?.consultations ?? [];
+  const enrollments = enrollData?.data?.enrollments ?? [];
 
   // Profile completion
   const profile = user?.profile;
@@ -171,8 +171,8 @@ export default function DashboardScreen() {
             {[
               { icon: 'search' as const, label: t('home.findPsychologist'), tab: 'Psychologists' as const },
               { icon: 'book' as const, label: t('home.browseCourses'), tab: 'Courses' as const },
-              { icon: 'chatbubbles' as const, label: t('dashboard.chatSessions'), tab: 'Dashboard' as const },
-              { icon: 'calendar' as const, label: t('dashboard.consultations'), tab: 'Dashboard' as const },
+              { icon: 'chatbubbles' as const, label: t('dashboard.chatSessions'), tab: 'Home' as const },
+              { icon: 'calendar' as const, label: t('dashboard.consultations'), tab: 'Home' as const },
             ].map((action, i) => (
               <TouchableOpacity
                 key={i}

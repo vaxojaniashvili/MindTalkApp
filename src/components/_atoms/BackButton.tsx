@@ -1,29 +1,32 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet } from 'react-native';
+import { TouchableOpacity, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '../../constants/theme';
+import { Colors, Spacing } from '../../constants/theme';
 
 export default function BackButton() {
   const navigation = useNavigation();
 
   return (
-    <TouchableOpacity
-      onPress={() => navigation.goBack()}
-      style={styles.btn}
-      activeOpacity={0.7}
-    >
-      <Ionicons name="chevron-back" size={22} color={Colors.primary.ink} />
-    </TouchableOpacity>
+    <View style={styles.container}>
+      <TouchableOpacity
+        onPress={() => navigation.goBack()}
+        style={styles.btn}
+        activeOpacity={0.7}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      >
+        <Ionicons name="chevron-back" size={22} color={Colors.primary.ink} />
+      </TouchableOpacity>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+  },
   btn: {
-    position: 'absolute',
-    top: 8,
-    left: 16,
-    zIndex: 10,
     width: 40,
     height: 40,
     borderRadius: 20,

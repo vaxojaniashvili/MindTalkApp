@@ -1,9 +1,18 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Colors } from '../constants/theme';
 import '../i18n';
+
+const AppTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: Colors.cream.DEFAULT,
+  },
+};
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,7 +32,7 @@ export default function AppProviders({ children }: Props) {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
-          <NavigationContainer>{children}</NavigationContainer>
+          <NavigationContainer theme={AppTheme}>{children}</NavigationContainer>
         </QueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

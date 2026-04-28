@@ -14,15 +14,20 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import Input from '../components/_atoms/Input';
 import Button from '../components/_atoms/Button';
-import { Colors, Spacing, FontSize, FontWeight } from '../constants/theme';
+import { Colors, Spacing, FontSize, FontWeight, BorderRadius } from '../constants/theme';
 import { useAuthStore } from '../store/authStore';
 import type { RootStackParamList } from '../types';
 
+type Role = 'client' | 'psychologist';
+
 export default function RegisterScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const register = useAuthStore((s) => s.register);
 
+  const [role, setRole] = useState<Role>('client');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -30,7 +35,7 @@ export default function RegisterScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
-    if (!email || !password || !confirmPassword) return;
+    if (!firstName || !lastName || !email || !password || !confirmPassword) return;
     if (password !== confirmPassword) {
       setError(t('auth.confirmPassword'));
       return;
@@ -38,7 +43,15 @@ export default function RegisterScreen() {
     setError('');
     setLoading(true);
     try {
-      await register({ email, password, password_confirmation: confirmPassword });
+      await register({
+        email,
+        password,
+        password_confirmation: confirmPassword,
+        first_name: firstName,
+        last_name: lastName,
+        role,
+        locale: i18n.language,
+      });
       navigation.goBack();
     } catch {
       setError(t('common.error'));
@@ -63,7 +76,51 @@ export default function RegisterScreen() {
             <Text style={styles.subtitle}>{t('auth.register')}</Text>
           </View>
 
+          {/* Role selector */}
+          <View style={styles.roleTabs}>
+            <TouchableOpacity
+              style={[styles.roleTab, role === 'client' && styles.roleTabActive]}
+              onPress={() => setRole('client')}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.roleTabText, role === 'client' && styles.roleTabTextActive]}>
+                {t('auth.registerAsClient')}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.roleTab, role === 'psychologist' && styles.roleTabActive]}
+              onPress={() => setRole('psychologist')}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.roleTabText, role === 'psychologist' && styles.roleTabTextActive]}>
+                {t('auth.registerAsPsychologist')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
           {error ? <Text style={styles.error}>{error}</Text> : null}
+
+          {/* Name fields */}
+          <View style={styles.nameRow}>
+            <View style={styles.nameField}>
+              <Input
+                label={t('auth.firstName')}
+                value={firstName}
+                onChangeText={setFirstName}
+                autoCapitalize="words"
+                autoComplete="given-name"
+              />
+            </View>
+            <View style={styles.nameField}>
+              <Input
+                label={t('auth.lastName')}
+                value={lastName}
+                onChangeText={setLastName}
+                autoCapitalize="words"
+                autoComplete="family-name"
+              />
+            </View>
+          </View>
 
           <Input
             label={t('auth.email')}
@@ -124,7 +181,7 @@ const styles = StyleSheet.create({
   },
   logoArea: {
     alignItems: 'center',
-    marginBottom: Spacing['4xl'],
+    marginBottom: Spacing['2xl'],
   },
   brand: {
     fontSize: FontSize['4xl'],
@@ -136,6 +193,39 @@ const styles = StyleSheet.create({
     fontSize: FontSize.lg,
     color: Colors.ink.muted,
     marginTop: Spacing.sm,
+  },
+  roleTabs: {
+    flexDirection: 'row',
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.cream[100],
+    padding: 4,
+    marginBottom: Spacing.xl,
+  },
+  roleTab: {
+    flex: 1,
+    paddingVertical: Spacing.sm,
+    borderRadius: 999,
+    alignItems: 'center',
+  },
+  roleTabActive: {
+    backgroundColor: Colors.primary.ink,
+  },
+  roleTabText: {
+    fontSize: FontSize.sm,
+    fontWeight: FontWeight.medium,
+    color: Colors.ink.soft,
+  },
+  roleTabTextActive: {
+    color: Colors.cream[50],
+  },
+  nameRow: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+  },
+  nameField: {
+    flex: 1,
   },
   error: {
     color: Colors.danger,

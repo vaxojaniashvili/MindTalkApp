@@ -7,6 +7,7 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
+  Keyboard,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -51,7 +52,7 @@ export default function PsychologistsScreen() {
     initialPageParam: 1,
   });
 
-  const specializations = specData?.data?.data ?? [];
+  const specializations = specData?.data?.specializations ?? [];
   const psychologists = data?.pages.flatMap((p) => p.data.data) ?? [];
 
   const handleSpecPress = (slug: string) => {
@@ -140,6 +141,9 @@ export default function PsychologistsScreen() {
         ListHeaderComponent={ListHeader}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        onScrollBeginDrag={Keyboard.dismiss}
         onEndReached={() => hasNextPage && fetchNextPage()}
         onEndReachedThreshold={0.5}
         ListFooterComponent={

@@ -24,11 +24,15 @@
     "noAccount": "Don't have an account?",
     "hasAccount": "Already have an account?",
     "loginError": "Invalid email or password",
-    "logout": "Log Out"
+    "logout": "Log Out",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "registerAsClient": "Register as client",
+    "registerAsPsychologist": "Register as psychologist"
   },
   "tabs": {
     "home": "Home",
-    "psychologists": "Psychologists",
+    "psychologists": "Psychologs",
     "courses": "Courses",
     "dashboard": "Dashboard",
     "profile": "Profile"
@@ -136,7 +140,10 @@
     "expired": "Expired",
     "live30": "30 min Live Chat",
     "live60": "60 min Live Chat",
-    "async7d": "7-day Async Chat"
+    "async7d": "7-day Async Chat",
+    "typeMessage": "Type a message...",
+    "attachment": "Attachment",
+    "startLive": "Start Live Session"
   },
   "consultation": {
     "pending": "Pending",

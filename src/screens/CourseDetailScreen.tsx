@@ -36,16 +36,30 @@ export default function CourseDetailScreen({ route }: Props) {
   const { t } = useTranslation();
   const { localize } = useLocale();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['course', slug],
     queryFn: () => fetchCourseDetail(slug),
   });
-  const course = data?.data?.data;
+  const course = data?.data?.course;
 
-  if (isLoading || !course) {
+  if (isLoading) {
     return (
       <SafeAreaView style={styles.safe}>
+        <BackButton />
         <ActivityIndicator color={Colors.primary.ink} size="large" style={styles.loader} />
+      </SafeAreaView>
+    );
+  }
+
+  if (isError || !course) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <BackButton />
+        <View style={styles.errorContainer}>
+          <Ionicons name="alert-circle-outline" size={48} color={Colors.ink.muted} />
+          <Text style={styles.errorText}>{t('common.error')}</Text>
+          <Button title={t('common.retry')} onPress={() => refetch()} size="md" />
+        </View>
       </SafeAreaView>
     );
   }
@@ -161,6 +175,17 @@ const styles = StyleSheet.create({
   loader: {
     flex: 1,
     justifyContent: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: Spacing.lg,
+    padding: Spacing.xl,
+  },
+  errorText: {
+    fontSize: FontSize.base,
+    color: Colors.ink.muted,
   },
   thumbnail: {
     width: '100%',
