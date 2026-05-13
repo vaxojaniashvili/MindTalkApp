@@ -3,8 +3,8 @@ import { ExpoConfig, ConfigContext } from 'expo/config';
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: 'mindtalkapp',
-  slug: 'mindtalkapp',
+  name: 'talkrestapp',
+  slug: 'talkrestapp',
   extra: {
     apiUrl: process.env.API_URL || 'https://admin.mindtalk.ge/api/v1',
     reverbAppKey: process.env.REVERB_APP_KEY || '',

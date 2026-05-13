@@ -4,7 +4,7 @@ import { setAuthToken } from '../api/client';
 import { loginApi, registerApi, fetchMe } from '../api/endpoints';
 import type { ApiUser } from '../types';
 
-const TOKEN_KEY = 'mindtalk_token';
+const TOKEN_KEY = 'talkrest_token';
 
 interface AuthState {
   user: ApiUser | null;
@@ -14,6 +14,8 @@ interface AuthState {
 
   login: (email: string, password: string) => Promise<void>;
   register: (data: {
+    phone: string;
+    otp_code: string;
     email: string;
     password: string;
     password_confirmation: string;

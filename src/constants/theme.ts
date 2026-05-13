@@ -1,4 +1,4 @@
-// MindTalk Design System — pixel-perfect match with website
+// TalkRest Design System — pixel-perfect match with website
 export const Colors = {
   // Primary (Teal) – exact website values
   primary: {

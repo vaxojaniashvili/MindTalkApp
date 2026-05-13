@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "mindtalkapp",
-    "slug": "mindtalkapp",
+    "name": "talkrestapp",
+    "slug": "talkrestapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.ivexinio.mindtalkapp"
+      "bundleIdentifier": "com.ivexinio.talkrestapp"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +22,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.ivexinio.mindtalkapp"
+      "package": "com.ivexinio.talkrestapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"

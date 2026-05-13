@@ -298,6 +298,80 @@ export default function ProfileScreen() {
           </Card>
         </View>
 
+        {/* Dashboard Menu */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>{t("dashboard.quickActions")}</Text>
+          {[
+            { icon: "wallet-outline" as const, label: t("wallet.title"), screen: "Wallet" as const },
+            { icon: "card-outline" as const, label: t("subscriptions.title"), screen: "Subscriptions" as const },
+            { icon: "calendar-outline" as const, label: t("consultations.title"), screen: "Consultations" as const },
+            { icon: "book-outline" as const, label: t("dashboard.myCourses"), screen: "MyCourses" as const },
+            { icon: "chatbubbles-outline" as const, label: t("dashboard.chatSessions"), screen: "ChatSessions" as const },
+            { icon: "notifications-outline" as const, label: t("notifications.title"), screen: "Notifications" as const },
+          ].map((item, i) => (
+            <TouchableOpacity
+              key={i}
+              style={styles.menuRow}
+              onPress={() => navigation.navigate(item.screen)}
+              activeOpacity={0.7}
+            >
+              <View style={styles.menuIcon}>
+                <Ionicons name={item.icon} size={18} color={Colors.primary.ink} />
+              </View>
+              <Text style={styles.menuLabel}>{item.label}</Text>
+              <Ionicons name="chevron-forward" size={16} color={Colors.ink.muted} />
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Psychologist Menu */}
+        {user.roles.includes("psychologist") && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>{t("psychologist.tools")}</Text>
+            {[
+              { icon: "create-outline" as const, label: t("psychologist.editProfile"), screen: "PsychologistEditor" as const },
+              { icon: "time-outline" as const, label: t("psychologist.availability"), screen: "AvailabilityEditor" as const },
+              { icon: "library-outline" as const, label: t("psychologist.myCourses"), screen: "PsychCourses" as const },
+              { icon: "cash-outline" as const, label: t("psychologist.withdrawals"), screen: "Withdrawals" as const },
+            ].map((item, i) => (
+              <TouchableOpacity
+                key={i}
+                style={styles.menuRow}
+                onPress={() => navigation.navigate(item.screen)}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.menuIcon, { backgroundColor: Colors.sand[50] }]}>
+                  <Ionicons name={item.icon} size={18} color={Colors.sand[700]} />
+                </View>
+                <Text style={styles.menuLabel}>{item.label}</Text>
+                <Ionicons name="chevron-forward" size={16} color={Colors.ink.muted} />
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+
+        {/* Info */}
+        <View style={styles.section}>
+          {[
+            { icon: "information-circle-outline" as const, label: t("about.title"), screen: "About" as const },
+            { icon: "help-circle-outline" as const, label: t("faq.title"), screen: "FAQ" as const },
+            { icon: "settings-outline" as const, label: t("settings.title"), screen: "Settings" as const },
+          ].map((item, i) => (
+            <TouchableOpacity
+              key={i}
+              style={styles.menuRow}
+              onPress={() => navigation.navigate(item.screen)}
+              activeOpacity={0.7}
+            >
+              <View style={styles.menuIcon}>
+                <Ionicons name={item.icon} size={18} color={Colors.ink.soft} />
+              </View>
+              <Text style={styles.menuLabel}>{item.label}</Text>
+              <Ionicons name="chevron-forward" size={16} color={Colors.ink.muted} />
+            </TouchableOpacity>
+          ))}
+        </View>
+
         {/* Language Switch */}
         <View style={styles.section}>
           <TouchableOpacity
@@ -563,6 +637,29 @@ const styles = StyleSheet.create({
     color: Colors.ink.muted,
   },
   infoValue: {
+    fontSize: FontSize.base,
+    color: Colors.ink.DEFAULT,
+    fontWeight: FontWeight.medium,
+  },
+  // Menu
+  menuRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.md,
+    paddingVertical: Spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  menuIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Colors.primary[50],
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  menuLabel: {
+    flex: 1,
     fontSize: FontSize.base,
     color: Colors.ink.DEFAULT,
     fontWeight: FontWeight.medium,

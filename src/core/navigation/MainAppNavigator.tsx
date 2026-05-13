@@ -11,6 +11,23 @@ import CourseDetailScreen from '../../screens/CourseDetailScreen';
 import EditProfileScreen from '../../screens/EditProfileScreen';
 import ChatSessionsScreen from '../../screens/ChatSessionsScreen';
 import ChatRoomScreen from '../../screens/ChatRoomScreen';
+import WalletScreen from '../../screens/WalletScreen';
+import WalletTopupScreen from '../../screens/WalletTopupScreen';
+import SubscriptionsScreen from '../../screens/SubscriptionsScreen';
+import ConsultationsScreen from '../../screens/ConsultationsScreen';
+import MyCoursesScreen from '../../screens/MyCoursesScreen';
+import CoursePlayerScreen from '../../screens/CoursePlayerScreen';
+import NotificationsScreen from '../../screens/NotificationsScreen';
+import BookPsychologistScreen from '../../screens/BookPsychologistScreen';
+import AboutScreen from '../../screens/AboutScreen';
+import FAQScreen from '../../screens/FAQScreen';
+import SettingsScreen from '../../screens/SettingsScreen';
+import PaymentSuccessScreen from '../../screens/PaymentSuccessScreen';
+import PaymentFailedScreen from '../../screens/PaymentFailedScreen';
+import PsychologistEditorScreen from '../../screens/PsychologistEditorScreen';
+import AvailabilityEditorScreen from '../../screens/AvailabilityEditorScreen';
+import PsychCoursesScreen from '../../screens/PsychCoursesScreen';
+import WithdrawalsScreen from '../../screens/WithdrawalsScreen';
 import { Colors } from '../../constants/theme';
 import type { RootStackParamList } from '../../types';
 
@@ -42,6 +59,28 @@ export default function MainAppNavigator() {
       <Stack.Screen name="EditProfile" component={EditProfileScreen} />
       <Stack.Screen name="ChatSessions" component={ChatSessionsScreen} />
       <Stack.Screen name="ChatRoom" component={ChatRoomScreen} />
+      {/* Dashboard screens */}
+      <Stack.Screen name="Wallet" component={WalletScreen} />
+      <Stack.Screen name="WalletTopup" component={WalletTopupScreen} />
+      <Stack.Screen name="Subscriptions" component={SubscriptionsScreen} />
+      <Stack.Screen name="Consultations" component={ConsultationsScreen} />
+      <Stack.Screen name="MyCourses" component={MyCoursesScreen} />
+      <Stack.Screen name="CoursePlayer" component={CoursePlayerScreen} />
+      <Stack.Screen name="Notifications" component={NotificationsScreen} />
+      {/* Booking */}
+      <Stack.Screen name="BookPsychologist" component={BookPsychologistScreen} />
+      {/* Info */}
+      <Stack.Screen name="About" component={AboutScreen} />
+      <Stack.Screen name="FAQ" component={FAQScreen} />
+      <Stack.Screen name="Settings" component={SettingsScreen} />
+      {/* Payment */}
+      <Stack.Screen name="PaymentSuccess" component={PaymentSuccessScreen} />
+      <Stack.Screen name="PaymentFailed" component={PaymentFailedScreen} />
+      {/* Psychologist-specific */}
+      <Stack.Screen name="PsychologistEditor" component={PsychologistEditorScreen} />
+      <Stack.Screen name="AvailabilityEditor" component={AvailabilityEditorScreen} />
+      <Stack.Screen name="PsychCourses" component={PsychCoursesScreen} />
+      <Stack.Screen name="Withdrawals" component={WithdrawalsScreen} />
     </Stack.Navigator>
   );
 }

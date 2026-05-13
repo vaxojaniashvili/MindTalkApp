@@ -10,6 +10,27 @@ export type RootStackParamList = {
   EditProfile: undefined;
   ChatSessions: undefined;
   Settings: undefined;
+  // Dashboard screens
+  Wallet: undefined;
+  WalletTopup: undefined;
+  Subscriptions: undefined;
+  Consultations: undefined;
+  MyCourses: undefined;
+  CoursePlayer: { slug: string };
+  Notifications: undefined;
+  // Booking
+  BookPsychologist: { slug: string };
+  // Info
+  About: undefined;
+  FAQ: undefined;
+  // Payment
+  PaymentSuccess: { orderId?: string };
+  PaymentFailed: undefined;
+  // Psychologist-specific
+  PsychologistEditor: undefined;
+  AvailabilityEditor: undefined;
+  PsychCourses: undefined;
+  Withdrawals: undefined;
 };
 
 export type MainTabParamList = {
@@ -299,4 +320,149 @@ export interface EnrollmentCard {
   progress_percent: number;
   completed_at: string | null;
   source: 'purchase' | 'subscription' | 'admin_grant';
+  order_id?: string | null;
+  certificate_serial?: string | null;
+  revoked_at?: string | null;
+}
+
+// ─── Wallet Types ───
+export interface WalletTransaction {
+  id: string;
+  kind: 'topup' | 'course_purchase' | 'refund_credit' | 'withdrawal_hold' | 'withdrawal_paid' | 'withdrawal_reversed' | 'manual_adjust';
+  amount: number;
+  balance_after: number;
+  currency: string;
+  created_at: string;
+}
+
+export interface WalletData {
+  balance: number;
+  held_for_withdrawal: number;
+  available: number;
+  currency: string;
+  recent_transactions: WalletTransaction[];
+}
+
+// ─── Subscription Types ───
+export interface SubscriptionData {
+  id: string;
+  status: 'trialing' | 'active' | 'past_due' | 'paused' | 'cancelled';
+  plan: {
+    name: Record<string, string>;
+    base_price: number;
+    currency: string;
+    interval: 'month' | 'quarter' | 'year';
+  };
+  psychologist: {
+    slug: string;
+    first_name: string | null;
+    last_name: string | null;
+    avatar_url: string | null;
+  };
+  current_period_end: string;
+  cancel_at_period_end: boolean;
+}
+
+// ─── Booking Types ───
+export interface BookingSlot {
+  start_utc: string;
+  duration_min: number;
+}
+
+export interface AvailableSlotsResponse {
+  slots: BookingSlot[];
+  timezone: string;
+}
+
+// ─── Cancel Preview ───
+export interface CancelPreview {
+  refund_rate: number;
+  refund_amount: number;
+  currency: string;
+}
+
+// ─── Withdrawal Types ───
+export interface WithdrawalData {
+  id: string;
+  amount: number;
+  currency: string;
+  iban: string;
+  account_holder: string;
+  bank: string;
+  status: 'requested' | 'approved' | 'paid' | 'rejected';
+  created_at: string;
+  processed_at: string | null;
+}
+
+// ─── Course Player Types ───
+export interface PlayerLessonData {
+  id: number;
+  title: Record<string, string>;
+  type: 'video' | 'text' | 'quiz' | 'pdf';
+  duration_sec: number;
+  is_preview: boolean;
+  sort_order?: number;
+  completed: boolean;
+  watched_seconds: number;
+  video_url: string | null;
+  video_mime: string | null;
+  content_path: string | null;
+  meta: Record<string, unknown> | null;
+}
+
+export interface PlayerModuleData {
+  id: number;
+  title: Record<string, string>;
+  lessons: PlayerLessonData[];
+  sort_order?: number;
+}
+
+export interface EnrollmentPlayerData {
+  enrollment: EnrollmentCard;
+  course: {
+    id: string;
+    slug: string;
+    title: Record<string, string>;
+    modules: PlayerModuleData[];
+  };
+}
+
+// ─── Psychologist Profile (editable) ───
+export interface ApiPsychologist {
+  id: string;
+  slug: string;
+  headline: Record<string, string> | null;
+  bio: Record<string, string> | null;
+  specializations: Array<{ id: number; slug: string; name: Record<string, string> }>;
+  languages: string[];
+  years_of_experience: number | null;
+  consultation_base_price: number;
+  currency: string;
+  city: string | null;
+  timezone: string;
+  intro_video_url: string | null;
+  avatar_url: string | null;
+  verification_level: 'L0' | 'L1' | 'L2' | 'L3';
+}
+
+// ─── Verification ───
+export interface VerificationStatusData {
+  status: 'pending' | 'approved' | 'rejected';
+  rejection_reason: string | null;
+  diploma_uploaded: boolean;
+  certificates_count: number;
+}
+
+// ─── Topup Response ───
+export interface TopupResponse {
+  order_id: string;
+  redirect_url: string;
+}
+
+// ─── Invoice ───
+export interface InvoiceData {
+  number: string;
+  amount: number;
+  currency: string;
+  pdf_url: string | null;
 }

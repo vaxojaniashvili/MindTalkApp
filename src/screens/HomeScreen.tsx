@@ -228,7 +228,7 @@ export default function HomeScreen() {
 
           <View style={styles.eyebrow}>
             <View style={styles.eyebrowDot} />
-            <Text style={styles.eyebrowText}>MINDTALK</Text>
+            <Text style={styles.eyebrowText}>TALKREST</Text>
           </View>
 
           <Text style={styles.heroTitle}>{t("home.heroTitle")}</Text>
@@ -364,7 +364,7 @@ export default function HomeScreen() {
             right person beside you.{'"'}
           </Text>
           <View style={styles.quoteDivider} />
-          <Text style={styles.quoteAuthor}>MindTalk</Text>
+          <Text style={styles.quoteAuthor}>TalkRest</Text>
         </View>
 
         {/* ─── PSYCHOLOGIST CTA ─── */}

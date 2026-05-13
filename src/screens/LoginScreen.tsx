@@ -55,7 +55,7 @@ export default function LoginScreen() {
         >
           {/* Logo area */}
           <View style={styles.logoArea}>
-            <Text style={styles.brand}>MindTalk</Text>
+            <Text style={styles.brand}>TalkRest</Text>
             <Text style={styles.subtitle}>{t('auth.login')}</Text>
           </View>
 
