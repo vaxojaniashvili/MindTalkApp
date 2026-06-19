@@ -15,12 +15,17 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import AppRefreshControl from "../components/customs/AppRefreshControl";
+import Skeleton, { SkeletonCard } from "../components/customs/Skeleton";
 import Avatar from "../components/_atoms/Avatar";
 import Button from "../components/_atoms/Button";
 import Badge from "../components/_atoms/Badge";
 import { Card, CardContent } from "../components/_atoms/Card";
 import PsychCardItem from "../components/_molecules/PsychCardItem";
+import CrisisBanner from "../components/ai/CrisisBanner";
+import AiGreetingCard from "../components/ai/AiGreetingCard";
+import AiMatchesSection from "../components/ai/AiMatchesSection";
 import {
   Colors,
   Spacing,
@@ -34,10 +39,13 @@ import {
   fetchSpecializations,
   fetchConsultations,
   fetchMyEnrollments,
+  fetchAiGreeting,
+  fetchAiMatches,
+  fetchAiBio,
 } from "../api/endpoints";
 import { useLocale } from "../hooks/useLocale";
 import { useAuthStore } from "../store/authStore";
-import { getDisplayName } from "../utils/helpers";
+import { getDisplayName, formatDate, formatTime } from "../utils/helpers";
 import type {
   MainTabParamList,
   RootStackParamList,
@@ -71,8 +79,29 @@ export default function HomeScreen() {
 
   const user = useAuthStore((s) => s.user);
   const isAuth = useAuthStore((s) => s.isAuthenticated);
+  const queryClient = useQueryClient();
+  const [refreshing, setRefreshing] = React.useState(false);
 
-  const { data: psychData } = useQuery({
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    try {
+      // Await only the fast core data so the spinner releases quickly.
+      await Promise.allSettled([
+        queryClient.refetchQueries({ queryKey: ["featured-psychologists"] }),
+        queryClient.refetchQueries({ queryKey: ["specializations"] }),
+        queryClient.refetchQueries({ queryKey: ["my-consultations"] }),
+        queryClient.refetchQueries({ queryKey: ["my-enrollments"] }),
+      ]);
+      // AI endpoints can be slow (generation) — refresh them in the background.
+      queryClient.invalidateQueries({ queryKey: ["ai-greeting"] });
+      queryClient.invalidateQueries({ queryKey: ["ai-matches"] });
+      queryClient.invalidateQueries({ queryKey: ["ai-bio"] });
+    } finally {
+      setRefreshing(false);
+    }
+  }, [queryClient]);
+
+  const { data: psychData, isLoading: psychLoading } = useQuery({
     queryKey: ["featured-psychologists"],
     queryFn: () => fetchPsychologists({ per_page: 6, sort: "rating" }),
   });
@@ -94,10 +123,42 @@ export default function HomeScreen() {
     enabled: isAuth,
   });
 
+  const isPsychologist = !!user?.roles?.includes("psychologist");
+  const isClient = isAuth && !isPsychologist;
+
+  const { data: greetingData, isLoading: greetingLoading } = useQuery({
+    queryKey: ["ai-greeting"],
+    queryFn: fetchAiGreeting,
+    enabled: isClient,
+    retry: false,
+    staleTime: 5 * 60_000,
+  });
+
+  const { data: matchesData } = useQuery({
+    queryKey: ["ai-matches"],
+    queryFn: fetchAiMatches,
+    enabled: isClient,
+    retry: false,
+    staleTime: 5 * 60_000,
+  });
+
+  const { data: aiBioData } = useQuery({
+    queryKey: ["ai-bio"],
+    queryFn: fetchAiBio,
+    enabled: isClient,
+    retry: false,
+    staleTime: 5 * 60_000,
+  });
+
   const psychologists = psychData?.data?.data ?? [];
   const specializations = specData?.data?.specializations ?? [];
   const consultations = consultData?.data?.consultations ?? [];
   const enrollments = enrollData?.data?.enrollments ?? [];
+
+  const aiGreeting = greetingData?.data;
+  const aiMatches = matchesData?.data?.matches ?? [];
+  const crisisActive = !!aiBioData?.data?.profile?.crisis_active;
+  const personaName = aiGreeting?.persona?.name ?? "Mira";
 
   const profile = user?.profile;
   const upcomingSessions = consultations.filter(
@@ -124,7 +185,11 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={["top"]}>
-      <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scroll}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<AppRefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         {isAuth && profile && (
           <>
             <View style={styles.dashHero}>
@@ -144,6 +209,82 @@ export default function HomeScreen() {
                 </View>
               </View>
             </View>
+
+            {/* Crisis banner — top priority */}
+            {isClient && crisisActive && (
+              <View style={styles.section}>
+                <CrisisBanner />
+              </View>
+            )}
+
+            {/* AI greeting (Mira) — skeleton while the greeting generates */}
+            {isClient && greetingLoading && !aiGreeting && (
+              <View style={styles.section}>
+                <View style={styles.aiSkeletonCard}>
+                  <Skeleton width={56} height={56} borderRadius={28} />
+                  <View style={styles.aiSkeletonBody}>
+                    <Skeleton width="40%" height={11} />
+                    <Skeleton width="100%" height={14} style={{ marginTop: 8 }} />
+                    <Skeleton width="75%" height={14} style={{ marginTop: 6 }} />
+                  </View>
+                </View>
+              </View>
+            )}
+            {isClient && aiGreeting?.greeting && (
+              <View style={styles.section}>
+                <AiGreetingCard
+                  greeting={aiGreeting.greeting}
+                  personaName={aiGreeting.persona.name}
+                  isCustom={aiGreeting.persona.is_custom}
+                />
+              </View>
+            )}
+
+            {/* AI matches */}
+            {isClient && aiMatches.length > 0 && (
+              <View style={styles.section}>
+                <AiMatchesSection matches={aiMatches} personaName={personaName} />
+              </View>
+            )}
+
+            {/* Profile completion */}
+            {completion < 100 && (
+              <View style={styles.section}>
+                <TouchableOpacity
+                  style={styles.completionCard}
+                  activeOpacity={0.85}
+                  onPress={() => stackNav.navigate("EditProfile")}
+                >
+                  <View style={styles.completionHeader}>
+                    <Text style={styles.completionLabel}>
+                      {t("dashboard.profileCompletion")}
+                    </Text>
+                    <Text style={styles.completionPercent}>{completion}%</Text>
+                  </View>
+                  <View style={styles.completionBar}>
+                    <View
+                      style={[styles.completionFill, { width: `${completion}%` }]}
+                    />
+                  </View>
+                  <View style={styles.completionFooter}>
+                    <Text style={styles.completionHint}>
+                      {t("dashboard.profileCompletionHint")}
+                    </Text>
+                    <View style={styles.completionCta}>
+                      <Text style={styles.completionCtaText}>
+                        {t("dashboard.completeProfile")}
+                      </Text>
+                      <Ionicons
+                        name="arrow-forward"
+                        size={14}
+                        color={Colors.primary.ink}
+                      />
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            )}
+
             {upcomingSessions.length > 0 && (
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>
@@ -169,11 +310,7 @@ export default function HomeScreen() {
                               : "Unknown"}
                           </Text>
                           <Text style={styles.sessionTime}>
-                            {new Date(c.scheduled_at).toLocaleDateString()} -{" "}
-                            {new Date(c.scheduled_at).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
+                            {formatDate(c.scheduled_at)} · {formatTime(c.scheduled_at)}
                           </Text>
                         </View>
                         <Badge
@@ -298,6 +435,21 @@ export default function HomeScreen() {
         )}
 
         {/* ─── FEATURED PSYCHOLOGISTS ─── */}
+        {psychLoading && psychologists.length === 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>
+              {t("home.featuredPsychologists")}
+            </Text>
+            <View style={styles.psychSkeletonRow}>
+              <View style={{ width: width * 0.78 }}>
+                <SkeletonCard />
+              </View>
+              <View style={{ width: width * 0.78 }}>
+                <SkeletonCard />
+              </View>
+            </View>
+          </View>
+        )}
         {psychologists.length > 0 && (
           <View style={styles.section}>
             <View style={styles.sectionHeaderRow}>
@@ -452,6 +604,47 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary.ink,
     borderRadius: 4,
   },
+  completionCard: {
+    backgroundColor: "rgba(243,227,181,0.18)",
+    borderWidth: 1,
+    borderColor: "rgba(243,227,181,0.6)",
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.xl,
+  },
+  completionBar: {
+    height: 8,
+    backgroundColor: "rgba(243,227,181,0.5)",
+    borderRadius: 4,
+    overflow: "hidden",
+    marginTop: Spacing.sm,
+  },
+  completionFill: {
+    height: "100%",
+    backgroundColor: Colors.primary[500],
+    borderRadius: 4,
+  },
+  completionFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: Spacing.md,
+    gap: Spacing.md,
+  },
+  completionHint: {
+    flex: 1,
+    fontSize: FontSize.xs,
+    color: Colors.ink.muted,
+  },
+  completionCta: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  completionCtaText: {
+    fontSize: FontSize.sm,
+    fontWeight: FontWeight.semibold,
+    color: Colors.primary.ink,
+  },
   actionsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -516,6 +709,25 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     fontWeight: FontWeight.medium,
     color: Colors.primary.ink,
+  },
+
+  // ── Skeletons ──
+  aiSkeletonCard: {
+    flexDirection: "row",
+    gap: Spacing.lg,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.cream[50],
+    padding: Spacing.xl,
+  },
+  aiSkeletonBody: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  psychSkeletonRow: {
+    flexDirection: "row",
+    gap: Spacing.lg,
   },
 
   // ── Hero ──

@@ -15,6 +15,8 @@ import { useTranslation } from 'react-i18next';
 import CourseCardItem from '../components/_molecules/CourseCardItem';
 import { Colors, Spacing, FontSize, FontWeight, BorderRadius } from '../constants/theme';
 import { useInfiniteQuery } from '@tanstack/react-query';
+import AppRefreshControl from '../components/customs/AppRefreshControl';
+import { SkeletonCard } from '../components/customs/Skeleton';
 import { fetchCourses } from '../api/endpoints';
 import type { CourseCard } from '../types';
 
@@ -25,8 +27,15 @@ export default function CoursesScreen() {
   const [search, setSearch] = useState('');
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useInfiniteQuery({
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isRefetching,
+    refetch,
+  } = useInfiniteQuery({
       queryKey: ['courses', search, selectedLevel],
       queryFn: ({ pageParam = 1 }) =>
         fetchCourses({
@@ -106,6 +115,7 @@ export default function CoursesScreen() {
         ListHeaderComponent={ListHeader}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
+        refreshControl={<AppRefreshControl refreshing={isRefetching} onRefresh={refetch} />}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         onScrollBeginDrag={Keyboard.dismiss}
@@ -118,7 +128,11 @@ export default function CoursesScreen() {
         }
         ListEmptyComponent={
           isLoading ? (
-            <ActivityIndicator color={Colors.primary.ink} size="large" style={styles.loader} />
+            <View style={styles.skeletonWrap}>
+              <SkeletonCard />
+              <SkeletonCard />
+              <SkeletonCard />
+            </View>
           ) : (
             <View style={styles.emptyState}>
               <View style={styles.emptyIcon}>
@@ -141,6 +155,9 @@ const styles = StyleSheet.create({
   list: {
     paddingHorizontal: Spacing['2xl'],
     paddingBottom: Spacing['4xl'],
+  },
+  skeletonWrap: {
+    paddingTop: Spacing.lg,
   },
   heroArea: {
     paddingTop: Spacing['3xl'],

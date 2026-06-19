@@ -26,6 +26,12 @@ import type {
   TopupResponse,
   ApiPsychologist,
   VerificationStatusData,
+  AiGreetingResponse,
+  AiMatch,
+  ClientAiProfile,
+  AiBioPayload,
+  ApiReviewList,
+  RefundEligibility,
 } from '../types';
 
 // ─── Auth ───
@@ -61,9 +67,20 @@ export const fetchPsychologistDetail = (slug: string) =>
   apiClient.get<{ psychologist: PsychDetail }>(ENDPOINTS.psychologistDetail(slug));
 
 export const fetchPsychologistReviews = (slug: string, page = 1) =>
-  apiClient.get<PaginatedResponse<Review>>(ENDPOINTS.psychologistReviews(slug), {
+  apiClient.get<ApiReviewList>(ENDPOINTS.psychologistReviews(slug), {
     params: { page },
   });
+
+export const fetchReviewEligibility = (slug: string) =>
+  apiClient.get<{ eligible: boolean }>(ENDPOINTS.psychologistReviewEligibility(slug));
+
+export const submitReview = (
+  slug: string,
+  data: { rating: number; title: string | null; body: string },
+) => apiClient.post(ENDPOINTS.psychologistReviews(slug), data);
+
+export const replyToReview = (id: string, body: string) =>
+  apiClient.post(ENDPOINTS.reviewReply(id), { body });
 
 export const fetchSubscriptionPlans = (slug: string) =>
   apiClient.get<{ plans: SubscriptionPlan[] }>(ENDPOINTS.psychologistPlans(slug));
@@ -145,14 +162,53 @@ export const fetchCertificate = (slug: string) =>
 export const sendOtp = (phone: string) =>
   apiClient.post<{ _dev_code?: string }>(ENDPOINTS.sendOtp, { phone });
 
-export const submitAiBio = (data: {
-  bio_text: string;
-  tags: string[];
-  age_group?: string;
-  self_gender?: string;
-  preferred_gender?: string;
-  session_language?: string;
-}) => apiClient.post(ENDPOINTS.meAiBio, data);
+export const submitAiBio = (data: AiBioPayload) =>
+  apiClient.post(ENDPOINTS.meAiBio, data);
+
+// ─── AI / Mira ───
+export const fetchAiGreeting = () =>
+  apiClient.get<AiGreetingResponse>(ENDPOINTS.meAiGreeting);
+
+export const fetchAiMatches = () =>
+  apiClient.get<{ matches: AiMatch[] }>(ENDPOINTS.meAiMatches);
+
+export const fetchAiBio = () =>
+  apiClient.get<{ profile: ClientAiProfile | null }>(ENDPOINTS.meAiBio);
+
+export const updateAiPersona = (name: string | null) =>
+  apiClient.patch<{ persona: { name: string } }>(ENDPOINTS.meAiPersona, { name });
+
+// ─── Profile / Avatar ───
+export const uploadAvatar = (formData: FormData) =>
+  apiClient.post<{ avatar_url: string }>(ENDPOINTS.meAvatar, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+
+// ─── Refunds ───
+export const fetchRefundEligibility = (orderId: string) =>
+  apiClient.get<RefundEligibility>(ENDPOINTS.refundEligibility(orderId));
+
+export const requestRefund = (orderId: string, reason: string) =>
+  apiClient.post(ENDPOINTS.meRefunds, { order_id: orderId, reason });
+
+// ─── Chat (extended) ───
+export const fetchChatSessionDetail = (id: string) =>
+  apiClient.get<{ session: ChatSessionData }>(ENDPOINTS.chatSessionDetail(id));
+
+export const pingChatPresence = (id: string) =>
+  apiClient.post(ENDPOINTS.chatPresence(id));
+
+export const sendSlotOffer = (
+  id: string,
+  slots: { start_utc: string; duration_min: number }[],
+) =>
+  apiClient.post<{ message: ChatMessageData }>(ENDPOINTS.chatSlotOffer(id), { slots });
+
+export const bookSlot = (bookingChatId: string, slotStartUtc: string) =>
+  apiClient.post<{ redirect_url: string }>(ENDPOINTS.bookings, {
+    booking_chat_id: bookingChatId,
+    slot_start_utc: slotStartUtc,
+  });
 
 // ─── Psychologist Self-Service ───
 export const fetchMyPsychProfile = () =>

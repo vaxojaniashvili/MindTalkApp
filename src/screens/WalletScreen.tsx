@@ -11,6 +11,8 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
+import AppRefreshControl from '../components/customs/AppRefreshControl';
+import { formatDate as formatDateSafe } from '../utils/helpers';
 import { Card, CardContent } from '../components/_atoms/Card';
 import Button from '../components/_atoms/Button';
 import {
@@ -49,12 +51,7 @@ function formatCurrency(amount: number, currency: string): string {
 }
 
 function formatDate(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString(undefined, {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
+  return formatDateSafe(iso);
 }
 
 export default function WalletScreen() {
@@ -64,7 +61,7 @@ export default function WalletScreen() {
   const user = useAuthStore((s) => s.user);
   const isPsychologist = user?.roles.includes('psychologist') ?? false;
 
-  const { data, isLoading, isError, refetch } = useQuery({
+  const { data, isLoading, isError, refetch, isRefetching } = useQuery({
     queryKey: ['wallet'],
     queryFn: () => fetchWallet(),
     select: (res) => res.data.wallet,
@@ -179,6 +176,7 @@ export default function WalletScreen() {
         keyExtractor={(item) => item.id}
         ListHeaderComponent={ListHeader}
         contentContainerStyle={styles.list}
+        refreshControl={<AppRefreshControl refreshing={isRefetching} onRefresh={refetch} />}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           isLoading ? (

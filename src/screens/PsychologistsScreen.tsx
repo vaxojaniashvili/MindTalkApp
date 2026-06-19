@@ -13,6 +13,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import AppRefreshControl from '../components/customs/AppRefreshControl';
+import { SkeletonCard } from '../components/customs/Skeleton';
 import PsychCardItem from '../components/_molecules/PsychCardItem';
 import { Colors, Spacing, FontSize, FontWeight, BorderRadius } from '../constants/theme';
 import { fetchPsychologists, fetchSpecializations } from '../api/endpoints';
@@ -36,6 +38,8 @@ export default function PsychologistsScreen() {
     hasNextPage,
     isFetchingNextPage,
     isLoading,
+    isRefetching,
+    refetch,
   } = useInfiniteQuery({
     queryKey: ['psychologists', search, selectedSpec],
     queryFn: ({ pageParam = 1 }) =>
@@ -141,6 +145,7 @@ export default function PsychologistsScreen() {
         ListHeaderComponent={ListHeader}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
+        refreshControl={<AppRefreshControl refreshing={isRefetching} onRefresh={refetch} />}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         onScrollBeginDrag={Keyboard.dismiss}
@@ -153,7 +158,11 @@ export default function PsychologistsScreen() {
         }
         ListEmptyComponent={
           isLoading ? (
-            <ActivityIndicator color={Colors.primary.ink} style={styles.loader} />
+            <View style={styles.skeletonWrap}>
+              <SkeletonCard />
+              <SkeletonCard />
+              <SkeletonCard />
+            </View>
           ) : (
             <View style={styles.emptyState}>
               <View style={styles.emptyIcon}>
@@ -176,6 +185,9 @@ const styles = StyleSheet.create({
   list: {
     paddingHorizontal: Spacing['2xl'],
     paddingBottom: Spacing['4xl'],
+  },
+  skeletonWrap: {
+    paddingTop: Spacing.lg,
   },
   // Hero
   heroArea: {

@@ -22,6 +22,8 @@ import { fetchMyEnrollments } from '../api/endpoints';
 import { useLocale } from '../hooks/useLocale';
 import { getDisplayName } from '../utils/helpers';
 import { SkeletonCard } from '../components/customs/Skeleton';
+import RefundRequestButton from '../components/refunds/RefundRequestButton';
+import AppRefreshControl from '../components/customs/AppRefreshControl';
 import type { RootStackParamList, EnrollmentCard } from '../types';
 
 const levelVariant: Record<string, 'primary' | 'success' | 'warning' | 'danger' | 'neutral' | 'terracotta'> = {
@@ -36,7 +38,7 @@ export default function MyCoursesScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const isAuth = useAuthStore((s) => s.isAuthenticated);
 
-  const { data, isLoading, isError, refetch } = useQuery({
+  const { data, isLoading, isError, refetch, isRefetching } = useQuery({
     queryKey: ['my-enrollments'],
     queryFn: fetchMyEnrollments,
     enabled: isAuth,
@@ -115,6 +117,13 @@ export default function MyCoursesScreen() {
                   </Text>
                 </View>
               ) : null}
+
+              {/* Refund (purchased courses only) */}
+              {item.source === 'purchase' && item.order_id ? (
+                <View style={styles.refundRow}>
+                  <RefundRequestButton orderId={item.order_id} />
+                </View>
+              ) : null}
             </CardContent>
           </Card>
         </TouchableOpacity>
@@ -154,6 +163,7 @@ export default function MyCoursesScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
+          refreshControl={<AppRefreshControl refreshing={isRefetching} onRefresh={refetch} />}
           ListEmptyComponent={
             <View style={styles.emptyState}>
               <Ionicons name="book-outline" size={48} color={Colors.ink.muted} />
@@ -280,6 +290,12 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     color: Colors.primary[500],
     fontWeight: FontWeight.medium,
+  },
+  refundRow: {
+    marginTop: Spacing.md,
+    paddingTop: Spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
   },
   centered: {
     flex: 1,

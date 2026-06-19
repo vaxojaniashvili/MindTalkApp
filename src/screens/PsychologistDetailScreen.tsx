@@ -8,7 +8,8 @@ import {
   FlatList,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import Avatar from '../components/_atoms/Avatar';
@@ -18,12 +19,14 @@ import TrustBadge from '../components/_atoms/TrustBadge';
 import Badge from '../components/_atoms/Badge';
 import Button from '../components/_atoms/Button';
 import { Card, CardContent } from '../components/_atoms/Card';
+import ReviewsSection from '../components/reviews/ReviewsSection';
 import { Colors, Spacing, FontSize, FontWeight, BorderRadius, Shadow } from '../constants/theme';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import AppRefreshControl from '../components/customs/AppRefreshControl';
 import { fetchPsychologistDetail, fetchPsychologistReviews, fetchSubscriptionPlans } from '../api/endpoints';
 import { useLocale } from '../hooks/useLocale';
 import { getDisplayName } from '../utils/helpers';
-import type { RootStackParamList, Review, SubscriptionPlan } from '../types';
+import type { RootStackParamList, SubscriptionPlan } from '../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PsychologistDetail'>;
 
@@ -33,6 +36,22 @@ export default function PsychologistDetailScreen({ route }: Props) {
   const { slug } = route.params;
   const { t } = useTranslation();
   const { localize } = useLocale();
+  const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const queryClient = useQueryClient();
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['psychologist', slug] }),
+        queryClient.invalidateQueries({ queryKey: ['psychologist-reviews', slug] }),
+        queryClient.invalidateQueries({ queryKey: ['psychologist-plans', slug] }),
+      ]);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [queryClient, slug]);
 
   const { data: detailData, isLoading } = useQuery({
     queryKey: ['psychologist', slug],
@@ -47,7 +66,7 @@ export default function PsychologistDetailScreen({ route }: Props) {
     queryFn: () => fetchSubscriptionPlans(slug),
   });
   const psych = detailData?.data?.psychologist;
-  const reviews = reviewsData?.data?.data ?? [];
+  const reviewList = reviewsData?.data;
   const plans = plansData?.data?.plans ?? [];
 
   if (isLoading || !psych) {
@@ -61,7 +80,10 @@ export default function PsychologistDetailScreen({ route }: Props) {
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <BackButton />
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={<AppRefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         {/* Hero */}
         <View style={styles.hero}>
           <View style={styles.heroTop}>
@@ -106,13 +128,13 @@ export default function PsychologistDetailScreen({ route }: Props) {
           <View style={styles.ctaRow}>
             <Button
               title={t('psychologists.bookConsultation')}
-              onPress={() => {}}
+              onPress={() => nav.navigate('BookPsychologist', { slug })}
               fullWidth
               icon={<Ionicons name="calendar-outline" size={18} color={Colors.white} />}
             />
             <Button
               title={t('psychologists.startChat')}
-              onPress={() => {}}
+              onPress={() => nav.navigate('BookPsychologist', { slug })}
               variant="outline"
               fullWidth
               icon={<Ionicons name="chatbubble-outline" size={18} color={Colors.primary.ink} />}
@@ -139,10 +161,10 @@ export default function PsychologistDetailScreen({ route }: Props) {
         </View>
 
         {/* Availability */}
-        {psych.availability_rules.length > 0 && (
+        {(psych.availability_rules?.length ?? 0) > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{t('psychologists.availability')}</Text>
-            {psych.availability_rules.map((rule, i) => (
+            {(psych.availability_rules ?? []).map((rule, i) => (
               <View key={i} style={styles.availRow}>
                 <Text style={styles.availDay}>{dayNames[rule.day_of_week]}</Text>
                 <Text style={styles.availTime}>
@@ -200,40 +222,7 @@ export default function PsychologistDetailScreen({ route }: Props) {
         )}
 
         {/* Reviews */}
-        {reviews.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>
-              {t('psychologists.reviews')} ({psych.rating_count})
-            </Text>
-            {reviews.map((review: Review) => (
-              <Card key={review.id} style={styles.reviewCard}>
-                <CardContent>
-                  <View style={styles.reviewHeader}>
-                    <Avatar
-                      uri={review.author.avatar_url}
-                      name={review.author.display_name}
-                      size={36}
-                    />
-                    <View style={styles.reviewMeta}>
-                      <Text style={styles.reviewName}>{review.author.display_name}</Text>
-                      <StarRating rating={review.rating} size={12} showCount={false} />
-                    </View>
-                    <Text style={styles.reviewDate}>
-                      {new Date(review.created_at).toLocaleDateString()}
-                    </Text>
-                  </View>
-                  <Text style={styles.reviewBody}>{review.body}</Text>
-                  {review.psych_reply_body && (
-                    <View style={styles.replyBox}>
-                      <Text style={styles.replyLabel}>{getDisplayName(psych)}:</Text>
-                      <Text style={styles.replyText}>{review.psych_reply_body}</Text>
-                    </View>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </View>
-        )}
+        {reviewList && <ReviewsSection slug={slug} initialList={reviewList} />}
 
         <View style={{ height: Spacing['4xl'] }} />
       </ScrollView>

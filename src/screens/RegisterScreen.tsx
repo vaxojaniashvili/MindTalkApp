@@ -220,7 +220,7 @@ export default function RegisterScreen() {
     setLoading(true);
     setError('');
     try {
-      await submitAiBio({ bio_text: form.bio.trim(), tags: [] });
+      await submitAiBio({ bio_text: form.bio.trim(), tags: [], consent: true });
       setCurrentStep(5);
     } catch {
       setError(t('common.error', { defaultValue: 'Something went wrong' }));

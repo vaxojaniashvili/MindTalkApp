@@ -11,6 +11,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
+import AppRefreshControl from '../components/customs/AppRefreshControl';
 import Button from '../components/_atoms/Button';
 import {
   Colors,
@@ -44,7 +45,7 @@ export default function NotificationsScreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  const { data, isLoading, isError, refetch } = useQuery({
+  const { data, isLoading, isError, refetch, isRefetching } = useQuery({
     queryKey: ['notifications'],
     queryFn: () => fetchNotifications(),
     select: (res) => res.data.notifications,
@@ -106,6 +107,7 @@ export default function NotificationsScreen() {
         keyExtractor={(item) => item.id}
         ListHeaderComponent={ListHeader}
         contentContainerStyle={styles.list}
+        refreshControl={<AppRefreshControl refreshing={isRefetching} onRefresh={refetch} />}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           isLoading ? (

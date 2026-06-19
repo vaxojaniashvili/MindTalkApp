@@ -6,11 +6,11 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
-  Linking,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
 } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -44,12 +44,14 @@ export default function WalletTopupScreen() {
     mutationFn: (amt: number) => topupWallet(amt),
     onSuccess: async (res) => {
       const url = res.data.topup.redirect_url;
-      queryClient.invalidateQueries({ queryKey: ['wallet'] });
       try {
-        await Linking.openURL(url);
+        await WebBrowser.openBrowserAsync(url);
       } catch {
         Alert.alert(t('common.error'), t('wallet.cannotOpenPayment'));
       }
+      // Payment processed on the provider side — refresh balance and return.
+      queryClient.invalidateQueries({ queryKey: ['wallet'] });
+      navigation.navigate('PaymentSuccess', {});
     },
     onError: () => {
       Alert.alert(t('common.error'), t('wallet.topupFailed'));

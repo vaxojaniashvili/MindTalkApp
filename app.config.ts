@@ -5,6 +5,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'talkrestapp',
   slug: 'talkrestapp',
+  plugins: ['expo-web-browser', 'expo-image-picker'],
   extra: {
     apiUrl: process.env.API_URL || 'https://admin.mindtalk.ge/api/v1',
     reverbAppKey: process.env.REVERB_APP_KEY || '',

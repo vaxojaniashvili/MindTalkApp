@@ -14,6 +14,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import AppRefreshControl from '../components/customs/AppRefreshControl';
 import Avatar from '../components/_atoms/Avatar';
 import Button from '../components/_atoms/Button';
 import Badge from '../components/_atoms/Badge';
@@ -22,7 +23,7 @@ import { Colors, Spacing, FontSize, FontWeight, BorderRadius, Shadow } from '../
 import { useAuthStore } from '../store/authStore';
 import { fetchConsultations, cancelConsultation } from '../api/endpoints';
 import { useLocale } from '../hooks/useLocale';
-import { getDisplayName } from '../utils/helpers';
+import { getDisplayName, formatDate, formatTime } from '../utils/helpers';
 import { SkeletonCard } from '../components/customs/Skeleton';
 import type { RootStackParamList, ApiConsultation } from '../types';
 
@@ -50,7 +51,7 @@ export default function ConsultationsScreen() {
   const [activeTab, setActiveTab] = useState<Tab>('upcoming');
   const [cancellingId, setCancellingId] = useState<string | null>(null);
 
-  const { data, isLoading, isError, refetch } = useQuery({
+  const { data, isLoading, isError, refetch, isRefetching } = useQuery({
     queryKey: ['consultations'],
     queryFn: fetchConsultations,
     enabled: isAuth,
@@ -99,13 +100,10 @@ export default function ConsultationsScreen() {
     [t, queryClient],
   );
 
-  const formatDateTime = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return {
-      date: date.toLocaleDateString(),
-      time: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    };
-  };
+  const formatDateTime = (dateStr: string) => ({
+    date: formatDate(dateStr),
+    time: formatTime(dateStr),
+  });
 
   const renderItem = useCallback(
     ({ item }: { item: ApiConsultation }) => {
@@ -245,6 +243,7 @@ export default function ConsultationsScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
+          refreshControl={<AppRefreshControl refreshing={isRefetching} onRefresh={refetch} />}
           ListEmptyComponent={
             <View style={styles.emptyState}>
               <Ionicons name="calendar-outline" size={48} color={Colors.ink.muted} />

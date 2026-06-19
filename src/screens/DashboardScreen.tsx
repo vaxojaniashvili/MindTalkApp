@@ -24,7 +24,7 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchConsultations, fetchMyEnrollments } from '../api/endpoints';
 import type { RootStackParamList, MainTabParamList, ApiConsultation, EnrollmentCard } from '../types';
 import { useLocale } from '../hooks/useLocale';
-import { getDisplayName } from '../utils/helpers';
+import { getDisplayName, formatDate, formatTime } from '../utils/helpers';
 
 const statusVariant: Record<string, 'primary' | 'success' | 'warning' | 'danger'> = {
   scheduled: 'primary',
@@ -210,11 +210,7 @@ export default function DashboardScreen() {
                     <View style={styles.sessionInfo}>
                       <Text style={styles.sessionName}>{c.psychologist ? getDisplayName(c.psychologist) : 'Unknown'}</Text>
                       <Text style={styles.sessionTime}>
-                        {new Date(c.scheduled_at).toLocaleDateString()} -{' '}
-                        {new Date(c.scheduled_at).toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
+                        {formatDate(c.scheduled_at)} · {formatTime(c.scheduled_at)}
                       </Text>
                     </View>
                     <Badge

@@ -26,8 +26,20 @@ export const ENDPOINTS = {
   meCourses: '/me/courses',
   meWallet: '/me/wallet',
   meWalletTopup: '/me/wallet/topup',
-  meAiBio: '/me/ai-bio',
+  meAvatar: '/me/avatar',
   meEnrollments: '/me/enrollments',
+  // AI / Mira
+  meAiBio: '/me/ai-bio',
+  meAiGreeting: '/me/ai-greeting',
+  meAiMatches: '/me/ai-matches',
+  meAiPersona: '/me/ai-persona',
+  // Notifications actions
+  meNotificationsUnreadCount: '/me/notifications/unread-count',
+  meNotificationsReadAll: '/me/notifications/read-all',
+  // Refunds
+  meRefunds: '/me/refunds',
+  // Chat unread
+  meChatUnreadCount: '/me/chat/unread-count',
   // Psychologist self-service
   mePsychologist: '/me/psychologist',
   mePsychologistDiploma: '/me/psychologist/diploma',
@@ -47,6 +59,15 @@ export const ENDPOINTS = {
   psychologistReviews: (slug: string) => `/psychologists/${slug}/reviews`,
   psychologistPlans: (slug: string) => `/psychologists/${slug}/subscription-plans`,
   psychologistSlots: (slug: string) => `/psychologists/${slug}/slots`,
+  psychologistReviewEligibility: (slug: string) =>
+    `/psychologists/${slug}/review-eligibility`,
+  reviewReply: (id: string) => `/reviews/${id}/reply`,
+  notificationRead: (id: string) => `/me/notifications/${id}/read`,
+  notificationDelete: (id: string) => `/me/notifications/${id}`,
+  refundEligibility: (orderId: string) => `/me/refunds/eligibility/${orderId}`,
+  chatSessionDetail: (id: string) => `/me/chat/sessions/${id}`,
+  chatPresence: (id: string) => `/me/chat/sessions/${id}/presence`,
+  chatSlotOffer: (id: string) => `/me/chat/sessions/${id}/slot-offer`,
   courseDetail: (slug: string) => `/courses/${slug}`,
   consultationCancelPreview: (id: string) => `/consultations/${id}/cancel-preview`,
   consultationCancel: (id: string) => `/consultations/${id}/cancel`,

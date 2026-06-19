@@ -117,7 +117,7 @@ export interface PsychDetail extends PsychCard {
   total_sessions: number;
   timezone: string;
   verified_since: string | null;
-  availability_rules: AvailabilityRule[];
+  availability_rules?: AvailabilityRule[];
 }
 
 export interface CourseCard {
@@ -227,24 +227,55 @@ export interface ApiConsultation {
   } | null;
 }
 
+export interface ChatBookingInfo {
+  consultation_base_price: number;
+  consultation_price: number;
+  currency: string | null;
+  psychologist_google_connected: boolean;
+  psychologist_responded_at: string | null;
+  closed_at: string | null;
+}
+
 export interface ChatSessionData {
   id: string;
-  type: 'live_30' | 'live_60' | 'async_7d';
+  type: 'live_30' | 'live_60' | 'async_7d' | 'booking';
   status: 'pending' | 'active' | 'expired' | 'refunded';
+  booking?: ChatBookingInfo | null;
   starts_at: string | null;
   ends_at: string | null;
   live_started_at: string | null;
   base_price: number;
   total_paid: number;
   currency: string;
+  crisis_flags?: unknown[] | null;
   created_at: string;
   counterpart: {
     slug: string | null;
     first_name: string | null;
     last_name: string | null;
+    display_name?: string | null;
     avatar_url: string | null;
     role: 'client' | 'psychologist';
   };
+  last_message?: ChatMessageData | null;
+  unread_count?: number;
+}
+
+export type ChatMessageType = 'text' | 'slot_offer' | 'slot_booked' | 'system';
+
+export interface OfferedSlot {
+  id: string;
+  start_utc: string;
+  duration_min: number;
+  status: 'open' | 'booked';
+}
+
+export interface ChatMessageMeta {
+  slots?: OfferedSlot[];
+  consultation_id?: string;
+  scheduled_at?: string | null;
+  duration_min?: number;
+  meeting_url?: string | null;
 }
 
 export interface ChatMessageData {
@@ -252,7 +283,9 @@ export interface ChatMessageData {
   session_id: string;
   sender_id: string;
   sender_name: string;
+  type?: ChatMessageType;
   body: string | null;
+  meta?: ChatMessageMeta | null;
   attachment_url: string | null;
   attachment_mime: string | null;
   attachment_size: number | null;
@@ -465,4 +498,84 @@ export interface InvoiceData {
   amount: number;
   currency: string;
   pdf_url: string | null;
+}
+
+// ─── AI / Mira ───
+export interface AiPersona {
+  name: string;
+  is_custom: boolean;
+}
+
+export interface AiGreetingResponse {
+  greeting: string;
+  persona: AiPersona;
+}
+
+export interface AiMatch {
+  id: string;
+  rank: number;
+  score: number;
+  reasoning: string;
+  first_session_questions: string[];
+  expires_at: string;
+  psychologist: {
+    id: string;
+    slug: string;
+    display_name: string;
+    avatar_url: string | null;
+    headline: Record<string, string> | null;
+    rating_avg: number;
+    rating_count: number;
+    consultation_base_price: number;
+    currency: string | null;
+    specializations: Array<{ slug: string; name: Record<string, string> | string }>;
+    languages: string[];
+  } | null;
+}
+
+export interface ClientAiProfile {
+  bio_text: string;
+  bio_language: string;
+  tags: string[];
+  age_group: string | null;
+  self_gender: string | null;
+  preferred_psych_gender: string | null;
+  preferred_session_lang: string | null;
+  crisis_active: boolean;
+  updated_at: string;
+}
+
+export interface AiBioPayload {
+  bio_text?: string;
+  tags: string[];
+  age_group?: string | null;
+  self_gender?: string | null;
+  preferred_psych_gender?: string | null;
+  preferred_session_lang?: string | null;
+  consent: boolean;
+}
+
+// ─── Reviews (list with rating meta) ───
+export interface ReviewListMeta {
+  total: number;
+  page: number;
+  last_page: number;
+  per_page: number;
+  rating_avg: number | null;
+  rating_count: number;
+}
+
+export interface ApiReviewList {
+  data: Review[];
+  meta: ReviewListMeta;
+}
+
+// ─── Refunds ───
+export interface RefundEligibility {
+  eligible: boolean;
+  watched_seconds?: number;
+  max_watch_seconds?: number;
+  amount?: number;
+  currency?: string;
+  reason?: string;
 }

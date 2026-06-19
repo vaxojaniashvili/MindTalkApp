@@ -5,7 +5,6 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,6 +17,8 @@ import BackButton from '../components/_atoms/BackButton';
 import { Colors, Spacing, FontSize, FontWeight, BorderRadius, Shadow } from '../constants/theme';
 import { useAuthStore } from '../store/authStore';
 import { useQuery } from '@tanstack/react-query';
+import AppRefreshControl from '../components/customs/AppRefreshControl';
+import { SkeletonListItem } from '../components/customs/Skeleton';
 import { fetchChatSessions } from '../api/endpoints';
 import { getDisplayName } from '../utils/helpers';
 import type { ChatSessionData, RootStackParamList } from '../types';
@@ -40,42 +41,53 @@ export default function ChatSessionsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const isAuth = useAuthStore((s) => s.isAuthenticated);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['chat-sessions'],
     queryFn: fetchChatSessions,
     enabled: isAuth,
   });
   const sessions = data?.data?.sessions ?? [];
 
-  const renderItem = ({ item }: { item: ChatSessionData }) => (
-    <TouchableOpacity
-      style={styles.card}
-      activeOpacity={0.7}
-      onPress={() => navigation.navigate('ChatRoom', { id: item.id })}
-    >
-      <View style={styles.cardTop}>
-        <Avatar
-          uri={item.counterpart.avatar_url}
-          name={getDisplayName(item.counterpart)}
-          size={44}
-        />
-        <View style={styles.cardInfo}>
-          <Text style={styles.cardName}>{getDisplayName(item.counterpart)}</Text>
-          <Text style={styles.cardType}>{t(typeLabels[item.type] || item.type)}</Text>
+  const renderItem = ({ item }: { item: ChatSessionData }) => {
+    const cp = item.counterpart ?? {
+      avatar_url: null,
+      first_name: null,
+      last_name: null,
+      display_name: null,
+    };
+    const name = getDisplayName(cp);
+    const typeLabel = typeLabels[item.type] ?? `chat.planType.${item.type}`;
+    let endsLabel = '';
+    if (item.ends_at) {
+      const d = new Date(item.ends_at);
+      if (!Number.isNaN(d.getTime())) {
+        endsLabel = `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+      }
+    }
+    return (
+      <TouchableOpacity
+        style={styles.card}
+        activeOpacity={0.7}
+        onPress={() => navigation.navigate('ChatRoom', { id: item.id })}
+      >
+        <View style={styles.cardTop}>
+          <Avatar uri={cp.avatar_url ?? null} name={name} size={44} />
+          <View style={styles.cardInfo}>
+            <Text style={styles.cardName}>{name}</Text>
+            <Text style={styles.cardType}>{t(typeLabel)}</Text>
+          </View>
+          <Badge label={t(`chat.${item.status}`)} variant={statusVariant[item.status] ?? 'neutral'} />
         </View>
-        <Badge label={t(`chat.${item.status}`)} variant={statusVariant[item.status] ?? 'neutral'} />
-      </View>
 
-      <View style={styles.cardBottom}>
-        {item.ends_at && (
-          <Text style={styles.expires}>
-            <Ionicons name="time-outline" size={12} color={Colors.ink.muted} />{' '}
-            {new Date(item.ends_at).toLocaleDateString()}
-          </Text>
-        )}
-      </View>
-    </TouchableOpacity>
-  );
+        {endsLabel ? (
+          <View style={styles.cardBottom}>
+            <Ionicons name="time-outline" size={12} color={Colors.ink.muted} />
+            <Text style={styles.expires}>{endsLabel}</Text>
+          </View>
+        ) : null}
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -88,9 +100,15 @@ export default function ChatSessionsScreen() {
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
+        refreshControl={<AppRefreshControl refreshing={isRefetching} onRefresh={refetch} />}
         ListEmptyComponent={
           isLoading ? (
-            <ActivityIndicator color={Colors.primary.ink} style={styles.loader} />
+            <View style={styles.skeletonWrap}>
+              <SkeletonListItem />
+              <SkeletonListItem />
+              <SkeletonListItem />
+              <SkeletonListItem />
+            </View>
           ) : (
             <View style={styles.emptyContainer}>
               <Ionicons name="chatbubbles-outline" size={48} color={Colors.cream[300]} />
@@ -118,6 +136,9 @@ const styles = StyleSheet.create({
   list: {
     padding: Spacing.lg,
     paddingTop: 0,
+  },
+  skeletonWrap: {
+    paddingTop: Spacing.sm,
   },
   card: {
     backgroundColor: Colors.cream[50],
@@ -154,8 +175,8 @@ const styles = StyleSheet.create({
   },
   cardBottom: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 4,
     marginTop: Spacing.sm,
   },
   expires: {

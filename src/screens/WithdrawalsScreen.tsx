@@ -23,6 +23,7 @@ import { SkeletonBalanceCard, SkeletonListItem } from '../components/customs/Ske
 import { Colors, Spacing, FontSize, FontWeight, BorderRadius, Shadow } from '../constants/theme';
 import { useAuthStore } from '../store/authStore';
 import { fetchWallet, fetchWithdrawals, requestWithdrawal } from '../api/endpoints';
+import { formatDate as formatDateSafe } from '../utils/helpers';
 import type { RootStackParamList, WithdrawalData } from '../types';
 
 const statusBadgeVariant: Record<string, 'primary' | 'success' | 'warning' | 'danger' | 'neutral' | 'terracotta'> = {
@@ -113,10 +114,7 @@ export default function WithdrawalsScreen() {
     mutation.mutate();
   };
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString();
-  };
+  const formatDate = (dateStr: string) => formatDateSafe(dateStr);
 
   const isLoading = walletLoading || withdrawalsLoading;
 

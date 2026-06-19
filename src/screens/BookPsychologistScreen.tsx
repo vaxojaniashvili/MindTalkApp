@@ -6,15 +6,15 @@ import {
   FlatList,
   TouchableOpacity,
   TextInput,
-  Linking,
   Alert,
 } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Button from '../components/_atoms/Button';
 import { Card, CardContent } from '../components/_atoms/Card';
 import {
@@ -32,7 +32,7 @@ import {
 } from '../api/endpoints';
 import { useLocale } from '../hooks/useLocale';
 import Skeleton, { SkeletonListItem } from '../components/customs/Skeleton';
-import { getDisplayName } from '../utils/helpers';
+import { getDisplayName, formatMonthDay, formatLongDate, formatTime } from '../utils/helpers';
 import type { RootStackParamList, BookingSlot } from '../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'BookPsychologist'>;
@@ -78,6 +78,7 @@ export default function BookPsychologistScreen({ route }: Props) {
   const { localize } = useLocale();
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const queryClient = useQueryClient();
 
   const [step, setStep] = useState(1);
   const [weekOffset, setWeekOffset] = useState(0);
@@ -127,15 +128,17 @@ export default function BookPsychologistScreen({ route }: Props) {
         slot_start_utc: selectedSlot!.start_utc,
         notes: notes || undefined,
       }),
-    onSuccess: (response) => {
+    onSuccess: async (response) => {
       const redirectUrl = response.data?.redirect_url;
       if (redirectUrl) {
-        Linking.openURL(redirectUrl).catch(() => {
-          navigation.navigate('PaymentSuccess', {});
-        });
-      } else {
-        navigation.navigate('PaymentSuccess', {});
+        // Open the payment provider in an in-app browser (mirrors the web redirect).
+        await WebBrowser.openBrowserAsync(redirectUrl).catch(() => {});
+        // Refresh the data that a completed payment affects.
+        queryClient.invalidateQueries({ queryKey: ['wallet'] });
+        queryClient.invalidateQueries({ queryKey: ['my-consultations'] });
+        queryClient.invalidateQueries({ queryKey: ['chat-sessions'] });
       }
+      navigation.navigate('PaymentSuccess', {});
     },
     onError: () => {
       Alert.alert(t('common.error'), t('common.somethingWrong'));
@@ -224,15 +227,7 @@ export default function BookPsychologistScreen({ route }: Props) {
           />
         </TouchableOpacity>
         <Text style={styles.weekLabel}>
-          {weekDays[0].toLocaleDateString(undefined, {
-            month: 'short',
-            day: 'numeric',
-          })}{' '}
-          -{' '}
-          {weekDays[6].toLocaleDateString(undefined, {
-            month: 'short',
-            day: 'numeric',
-          })}
+          {formatMonthDay(weekDays[0])} - {formatMonthDay(weekDays[6])}
         </Text>
         <TouchableOpacity
           onPress={() => setWeekOffset((w) => w + 1)}
@@ -242,72 +237,65 @@ export default function BookPsychologistScreen({ route }: Props) {
         </TouchableOpacity>
       </View>
 
-      {slotsLoading ? (
-        <View style={{ flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.lg }}>
-          <Skeleton width={80} height={80} borderRadius={BorderRadius.md} />
-          <Skeleton width={80} height={80} borderRadius={BorderRadius.md} />
-          <Skeleton width={80} height={80} borderRadius={BorderRadius.md} />
-        </View>
-      ) : (
-        <FlatList
-          data={weekDays}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item) => formatDate(item)}
-          contentContainerStyle={styles.dayList}
-          renderItem={({ item }) => {
-            const dateKey = formatDate(item);
-            const count = slotsByDate[dateKey]?.length ?? 0;
-            const isSelected = selectedDate === dateKey;
-            const isPast = item < new Date(new Date().toDateString());
+      <FlatList
+        data={weekDays}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        keyExtractor={(item) => formatDate(item)}
+        style={styles.dayFlatList}
+        contentContainerStyle={styles.dayList}
+        renderItem={({ item }) => {
+          const dateKey = formatDate(item);
+          const count = slotsByDate[dateKey]?.length ?? 0;
+          const isSelected = selectedDate === dateKey;
+          const isPast = item < new Date(new Date().toDateString());
 
-            return (
-              <TouchableOpacity
+          return (
+            <TouchableOpacity
+              style={[
+                styles.dayCard,
+                isSelected && styles.dayCardSelected,
+                isPast && styles.dayCardDisabled,
+              ]}
+              onPress={() => {
+                if (!isPast) {
+                  setSelectedDate(dateKey);
+                  setSelectedSlot(null);
+                }
+              }}
+              disabled={isPast}
+            >
+              <Text
                 style={[
-                  styles.dayCard,
-                  isSelected && styles.dayCardSelected,
-                  isPast && styles.dayCardDisabled,
+                  styles.dayName,
+                  isSelected && styles.dayTextSelected,
+                  isPast && styles.dayTextDisabled,
                 ]}
-                onPress={() => {
-                  if (!isPast) {
-                    setSelectedDate(dateKey);
-                    setSelectedSlot(null);
-                  }
-                }}
-                disabled={isPast}
               >
-                <Text
-                  style={[
-                    styles.dayName,
-                    isSelected && styles.dayTextSelected,
-                    isPast && styles.dayTextDisabled,
-                  ]}
-                >
-                  {WEEK_DAYS[item.getDay()]}
-                </Text>
-                <Text
-                  style={[
-                    styles.dayDate,
-                    isSelected && styles.dayTextSelected,
-                    isPast && styles.dayTextDisabled,
-                  ]}
-                >
-                  {item.getDate()}
-                </Text>
-                <Text
-                  style={[
-                    styles.daySlots,
-                    isSelected && styles.dayTextSelected,
-                    isPast && styles.dayTextDisabled,
-                  ]}
-                >
-                  {count} {t('booking.slots')}
-                </Text>
-              </TouchableOpacity>
-            );
-          }}
-        />
-      )}
+                {WEEK_DAYS[item.getDay()]}
+              </Text>
+              <Text
+                style={[
+                  styles.dayDate,
+                  isSelected && styles.dayTextSelected,
+                  isPast && styles.dayTextDisabled,
+                ]}
+              >
+                {item.getDate()}
+              </Text>
+              <Text
+                style={[
+                  styles.daySlots,
+                  isSelected && styles.dayTextSelected,
+                  isPast && styles.dayTextDisabled,
+                ]}
+              >
+                {slotsLoading ? '…' : `${count} ${t('booking.slots')}`}
+              </Text>
+            </TouchableOpacity>
+          );
+        }}
+      />
     </View>
   );
 
@@ -332,10 +320,7 @@ export default function BookPsychologistScreen({ route }: Props) {
             <Text style={styles.periodLabel}>{section.label}</Text>
             <View style={styles.slotGrid}>
               {section.slots.map((slot) => {
-                const time = new Date(slot.start_utc).toLocaleTimeString([], {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                });
+                const time = formatTime(slot.start_utc);
                 const isSelected = selectedSlot?.start_utc === slot.start_utc;
                 return (
                   <TouchableOpacity
@@ -388,20 +373,8 @@ export default function BookPsychologistScreen({ route }: Props) {
 
   // ─── Step 4: Confirmation ───
   const renderConfirmation = () => {
-    const slotDate = selectedSlot
-      ? new Date(selectedSlot.start_utc).toLocaleDateString(undefined, {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        })
-      : '';
-    const slotTime = selectedSlot
-      ? new Date(selectedSlot.start_utc).toLocaleTimeString([], {
-          hour: '2-digit',
-          minute: '2-digit',
-        })
-      : '';
+    const slotDate = selectedSlot ? formatLongDate(selectedSlot.start_utc) : '';
+    const slotTime = selectedSlot ? formatTime(selectedSlot.start_utc) : '';
 
     return (
       <View style={styles.stepContainer}>
@@ -600,14 +573,20 @@ const styles = StyleSheet.create({
     color: Colors.ink.soft,
   },
   // Day cards
+  dayFlatList: {
+    flexGrow: 0,
+    alignSelf: 'stretch',
+  },
   dayList: {
     gap: Spacing.sm,
     paddingBottom: Spacing.lg,
   },
   dayCard: {
     width: 80,
+    height: 96,
     paddingVertical: Spacing.lg,
     alignItems: 'center',
+    justifyContent: 'center',
     borderRadius: BorderRadius.md,
     borderWidth: 1,
     borderColor: Colors.border,

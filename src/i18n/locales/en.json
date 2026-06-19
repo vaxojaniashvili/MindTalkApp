@@ -98,7 +98,9 @@
     "consultations": "Consultations",
     "chatSessions": "Chat Sessions",
     "noUpcoming": "No upcoming sessions",
-    "noCourses": "No enrolled courses"
+    "noCourses": "No enrolled courses",
+    "completeProfile": "Complete profile",
+    "profileCompletionHint": "Complete your profile for better recommendations"
   },
   "profile": {
     "title": "Profile",
@@ -118,19 +120,33 @@
     "settings": "Settings",
     "accountStatus": "Account Status",
     "emailVerified": "Email Verified",
-    "twoFactor": "Two-Factor Auth"
+    "twoFactor": "Two-Factor Auth",
+    "changePhoto": "Change photo",
+    "marketingConsent": "I want to receive news and offers",
+    "selectCountry": "Select country",
+    "dobHint": "Format: YYYY-MM-DD"
   },
   "notifications": {
     "title": "Notifications",
     "empty": "No notifications"
   },
   "subscriptions": {
+    "title": "Subscriptions",
     "monthly": "Monthly",
     "quarterly": "Quarterly",
     "yearly": "Yearly",
     "perMonth": "per month",
     "subscribe": "Subscribe",
-    "savings": "Save"
+    "savings": "Save",
+    "empty": "No active subscriptions",
+    "browse": "Browse Psychologists",
+    "nextBilling": "Next billing",
+    "cancelAtEnd": "Cancels at period end",
+    "trialing": "Trial",
+    "active": "Active",
+    "past_due": "Past Due",
+    "paused": "Paused",
+    "cancelled": "Cancelled"
   },
   "chat": {
     "title": "Chat",
@@ -141,9 +157,63 @@
     "live30": "30 min Live Chat",
     "live60": "60 min Live Chat",
     "async7d": "7-day Async Chat",
-    "typeMessage": "Type a message...",
+    "typeMessage": "Type a message…",
     "attachment": "Attachment",
-    "startLive": "Start Live Session"
+    "startLive": "Start session",
+    "subtitle": "Your active chats with psychologists",
+    "empty": "No chat sessions yet",
+    "browseBtn": "Browse psychologists",
+    "plansTitle": "Chat packages",
+    "plansSub": "Pick a format, then start talking",
+    "buyPlan": "Purchase · {{price}} {{currency}}",
+    "expiresAt": "Expires {{date}}",
+    "startLiveHint": "Timer starts. Cannot pause",
+    "send": "Send",
+    "crisisBanner": "If you're in crisis, call 112 or hotline 116 111",
+    "attach": "Attach file",
+    "attachHint": "PDF/JPG/PNG ≤ 10MB",
+    "status": {
+      "pending": "Pending",
+      "active": "Active",
+      "expired": "Expired",
+      "refunded": "Refunded"
+    },
+    "planType": {
+      "live_30": "Live 30 min",
+      "live_60": "Live 60 min",
+      "async_7d": "7 days messaging",
+      "booking": "Consultation booking"
+    },
+    "booking": {
+      "offerTitle": "Available times",
+      "choose": "Choose & pay",
+      "booked": "Booked",
+      "open": "Open",
+      "bookedTitle": "Time booked",
+      "join": "Join meeting",
+      "composerToggle": "Offer times",
+      "composerTitle": "Offer times",
+      "addSlot": "Add a time",
+      "send": "Send",
+      "googleNeeded": "Connect Google Calendar first to host meetings.",
+      "googleConnect": "Connect Google",
+      "pickFuture": "Pick a future time.",
+      "sent": "Times sent to the client",
+      "locked": "Session booked — chat closed"
+    },
+    "now": "Now",
+    "message": "Message",
+    "liveBadge": "Live",
+    "connected": "Connected",
+    "reconnecting": "Reconnecting…",
+    "disconnected": "Disconnected",
+    "clientLabel": "Client",
+    "psychologistLabel": "Psychologist",
+    "openChat": "Open chat",
+    "unreadBadge": "New",
+    "messageCount": "{{count}} messages",
+    "daysLeft": "{{value}} days left",
+    "lastMessage": "Last message"
   },
   "consultation": {
     "pending": "Pending",
@@ -191,24 +261,6 @@
     "invalidAmount": "Amount must be between 1 and 5000",
     "goToWallet": "Go to Wallet"
   },
-  "subscriptions": {
-    "title": "Subscriptions",
-    "monthly": "Monthly",
-    "quarterly": "Quarterly",
-    "yearly": "Yearly",
-    "perMonth": "per month",
-    "subscribe": "Subscribe",
-    "savings": "Save",
-    "empty": "No active subscriptions",
-    "browse": "Browse Psychologists",
-    "nextBilling": "Next billing",
-    "cancelAtEnd": "Cancels at period end",
-    "trialing": "Trial",
-    "active": "Active",
-    "past_due": "Past Due",
-    "paused": "Paused",
-    "cancelled": "Cancelled"
-  },
   "booking": {
     "title": "Book Consultation",
     "selectDay": "Select a Day",
@@ -225,7 +277,14 @@
     "total": "Total",
     "confirmPay": "Confirm & Pay",
     "today": "Today",
-    "tomorrow": "Tomorrow"
+    "tomorrow": "Tomorrow",
+    "continue": "Continue",
+    "addNotes": "Add a note",
+    "date": "Date",
+    "duration": "Duration",
+    "notesHint": "Anything the psychologist should know? (optional)",
+    "psychologist": "Psychologist",
+    "time": "Time"
   },
   "myCourses": {
     "title": "My Courses",
@@ -364,5 +423,123 @@
     "friday": "Friday",
     "saturday": "Saturday",
     "sunday": "Sunday"
+  },
+  "ai": {
+    "newBio": {
+      "title": "AI recommendations",
+      "subtitle": "Write a short bio and the AI will match you with the best specialist",
+      "subtitleHasMatches": "Write a new bio to refresh your recommendations",
+      "cta": "Write a bio",
+      "submit": "Get recommendations",
+      "success": "Done — your recommendations have been refreshed"
+    },
+    "matches": {
+      "title": "Picked for you by {{name}}",
+      "refresh": "Refresh",
+      "refreshed": "Recommendations refreshed",
+      "refreshFailed": "Refresh failed",
+      "rateLimited": "You can refresh once every 24 hours",
+      "match": "Match",
+      "reviews": "reviews",
+      "view": "View",
+      "book": "Book"
+    },
+    "crisis": {
+      "title": "If you're going through something heavy — we're here with you",
+      "message": "Based on your bio, we want to make sure you're safe. If you're in immediate danger or thinking about hurting yourself, please call emergency services. Our team has been alerted and is ready to help.",
+      "callEmergency": "Call 112",
+      "contactSupport": "Contact TalkRest support"
+    },
+    "recommendation": {
+      "title": "{{name}}'s recommendation for you",
+      "questionsLabel": "Questions to ask in your first session:",
+      "loading": "Loading recommendation…"
+    },
+    "persona": {
+      "rename": "Rename your AI",
+      "renameHint": "you can rename",
+      "save": "Save",
+      "cancel": "Cancel",
+      "saved": "AI name updated",
+      "saveFailed": "Save failed",
+      "invalid": "Name must be 2-30 characters"
+    }
+  },
+  "reviews": {
+    "title": "Reviews",
+    "count": "{{count}} reviews",
+    "empty": "No reviews yet",
+    "writeReview": "Write a review",
+    "writeReviewHint": "Share your experience.",
+    "yourRating": "Your rating",
+    "reviewTitle": "Title (optional)",
+    "reviewBody": "Details (min 20 chars)",
+    "submit": "Post review",
+    "submitted": "Review posted, thank you!",
+    "psychReply": "Psychologist's reply",
+    "byAuthor": "{{name}} · {{date}}",
+    "helpful": "{{count}} found helpful",
+    "ineligibleHint": "You need a completed session in the last 60 days to leave a review."
+  },
+  "availability": {
+    "title": "My schedule",
+    "subtitle": "Set which days and hours you're available",
+    "addSlot": "Add slot",
+    "removeSlot": "Remove",
+    "start": "Start",
+    "end": "End",
+    "slotLen": "Session length",
+    "save": "Save",
+    "saved": "Schedule saved",
+    "day": {
+      "0": "Sun",
+      "1": "Mon",
+      "2": "Tue",
+      "3": "Wed",
+      "4": "Thu",
+      "5": "Fri",
+      "6": "Sat"
+    },
+    "minutes": "min",
+    "empty": "Not available this day",
+    "weeklySummary": "Weekly schedule",
+    "slotsPerWeek": "{{n}} slots per week",
+    "rangesCount": "{{n}} ranges",
+    "off": "Off",
+    "dayOff": "Not available this day",
+    "addRange": "Add range",
+    "copy": "Copy",
+    "copyWeekdays": "To weekdays (Mon–Fri)",
+    "copyAll": "To all days",
+    "copiedWeekdays": "Copied to weekdays",
+    "copiedAll": "Copied to all days",
+    "errorCopyFromOff": "Can't copy from a day that's off",
+    "errorEndAfterStart": "End time must be after start time",
+    "dayFull": {
+      "0": "Sunday",
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday"
+    },
+    "customDuration": "Custom",
+    "backToPresets": "Back to presets"
+  },
+  "refund": {
+    "button": "Request refund",
+    "title": "Request a refund",
+    "reasonLabel": "Reason",
+    "reasonPlaceholder": "Describe why you requested a refund…",
+    "reasonRequired": "Please provide a reason (at least 10 characters).",
+    "submit": "Send request",
+    "submitting": "Sending…",
+    "cancel": "Cancel",
+    "checkFailed": "Check failed.",
+    "sendFailed": "Could not send the request.",
+    "success": "Request sent. Our team will review it within 5 business days and get back to you. If approved, the amount is credited to your balance.",
+    "eligible": "Eligible. Watched: {{watched}} min / {{max}} min limit. Refund amount: {{amount}} {{currency}} → credited to balance.",
+    "ineligible": "You have already watched more than {{watched}} minutes — refund is no longer possible. The policy limit is {{max}} minutes."
   }
 }

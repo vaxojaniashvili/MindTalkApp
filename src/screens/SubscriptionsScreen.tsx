@@ -11,6 +11,8 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
+import AppRefreshControl from '../components/customs/AppRefreshControl';
+import { formatDate as formatDateSafe } from '../utils/helpers';
 import { Card, CardContent } from '../components/_atoms/Card';
 import Button from '../components/_atoms/Button';
 import Avatar from '../components/_atoms/Avatar';
@@ -41,12 +43,7 @@ const STATUS_BADGE: Record<
 };
 
 function formatDate(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString(undefined, {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
+  return formatDateSafe(iso);
 }
 
 function formatPrice(amount: number, currency: string): string {
@@ -59,7 +56,7 @@ export default function SubscriptionsScreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  const { data, isLoading, isError, refetch } = useQuery({
+  const { data, isLoading, isError, refetch, isRefetching } = useQuery({
     queryKey: ['subscriptions'],
     queryFn: () => fetchSubscriptions(),
     select: (res) => res.data.subscriptions,
@@ -142,6 +139,7 @@ export default function SubscriptionsScreen() {
         keyExtractor={(item) => item.id}
         ListHeaderComponent={ListHeader}
         contentContainerStyle={styles.list}
+        refreshControl={<AppRefreshControl refreshing={isRefetching} onRefresh={refetch} />}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           isLoading ? (
